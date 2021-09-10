@@ -1,23 +1,40 @@
-import React, { Component } from 'react';
-import './app.css';
-import ReactImage from './react.png';
+import React, { useEffect, useState } from 'react';
+import './App.css';
+import { useDispatch } from 'react-redux';
+import Tasks from './components/Tasks/Tasks';
+import FormTask from './components/FormTask/FormTask';
+import CategoryTasks from './components/CategoryLists/CategoryTasks';
+import { MiddlewareActions } from './redux/Actions/Actions';
 
-export default class App extends Component {
-  state = { username: null };
 
-  componentDidMount() {
-    fetch('/api/getUsername')
-      .then(res => res.json())
-      .then(user => this.setState({ username: user.username }));
-  }
+function App() {
+  const dispatch = useDispatch();
 
-  render() {
-    const { username } = this.state;
-    return (
-      <div>
-        {username ? <h1>{`Hello ${username}`}</h1> : <h1>Loading.. please wait!</h1>}
-        <img src={ReactImage} alt="react" />
-      </div>
-    );
-  }
+  const [filterTasks, setFilterTasks] = useState('allTasks');
+
+  const onFilterAll = () => setFilterTasks('allTasks');
+
+  const onFilterCompleted = () => setFilterTasks('completed');
+
+  const onFilterNotCompleted = () => setFilterTasks('notCompleted');
+
+  useEffect(() => {
+    dispatch(MiddlewareActions.fetchTasks());
+  }, [filterTasks]);
+
+  return (
+    <div className="App">
+      Todo-App
+      <FormTask />
+      <CategoryTasks
+        filterTasks={filterTasks}
+        onFilterAll={onFilterAll}
+        onFilterCompleted={onFilterCompleted}
+        onFilterNotCompleted={onFilterNotCompleted}
+      />
+      <Tasks filterTasks={filterTasks} />
+    </div>
+  );
 }
+
+export default App;
